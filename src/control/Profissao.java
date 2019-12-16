@@ -12,7 +12,8 @@ package control;
 public class Profissao {
     private int id;
     private String descricao;
-
+    private int salario;
+    
     public int getId() {
         return id;
     }
@@ -28,5 +29,14 @@ public class Profissao {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
+
+    public int getSalario() {
+        return salario;
+    }
+
+    public void setSalario(int salario) {
+        this.salario = salario;
+    }
     
-}
+    
+}   
