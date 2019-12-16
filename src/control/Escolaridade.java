@@ -13,6 +13,8 @@ public class Escolaridade {
 
     private int id;
     private String descricao;
+    private String criado;
+    private String editado;
 
     public int getId() {
         return id;
@@ -28,6 +30,22 @@ public class Escolaridade {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public String getCriado() {
+        return criado;
+    }
+
+    public void setCriado(String criado) {
+        this.criado = criado;
+    }
+
+    public String getEditado() {
+        return editado;
+    }
+
+    public void setEditado(String editado) {
+        this.editado = editado;
     }
     
     

@@ -15,7 +15,9 @@ public class Contato {
     private String ddd;
     private String telefone;
     private String email;
-
+    private String criado;
+    private String editado;
+    
     public int getId() {
         return id;
     }
@@ -47,6 +49,24 @@ public class Contato {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public String getCriado() {
+        return criado;
+    }
+
+    public void setCriado(String criado) {
+        this.criado = criado;
+    }
+
+    public String getEditado() {
+        return editado;
+    }
+
+    public void setEditado(String editado) {
+        this.editado = editado;
+    }
+    
+    
     
     
 }

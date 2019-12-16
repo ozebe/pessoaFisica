@@ -22,6 +22,9 @@ public class Endereco {
     private String bairro;
     private String localidade;
     private String uf;
+    private String criado;
+    private String editado;
+    
     
     public Endereco() {
     }
@@ -88,6 +91,22 @@ public class Endereco {
 
     public void setNumero(int numero) {
         this.numero = numero;
+    }
+
+    public String getCriado() {
+        return criado;
+    }
+
+    public void setCriado(String criado) {
+        this.criado = criado;
+    }
+
+    public String getEditado() {
+        return editado;
+    }
+
+    public void setEditado(String editado) {
+        this.editado = editado;
     }
     
     
