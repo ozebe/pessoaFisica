@@ -172,12 +172,20 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        this.endereco.setNumero(Integer.parseInt(numeroField.getText()));
-        this.endereco.setComplemento(complementoField.getText());
-        PessoaCadastraView.setEndereco(this.endereco);
-        PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
-        PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
-        this.dispose();
+        String numeroFormatado = numeroField.getText();
+        numeroFormatado = numeroFormatado.replaceAll("[^0-9]+", "");
+        try {
+            this.endereco.setNumero(Integer.parseInt(numeroFormatado));
+            this.endereco.setComplemento(complementoField.getText());
+            PessoaCadastraView.setEndereco(this.endereco);
+            PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
+            PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
+            this.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
     private void CepFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CepFieldFocusLost
@@ -186,7 +194,7 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
         try {
             String enderecoFormatado = CepField.getText().trim();
             enderecoFormatado = enderecoFormatado.replaceAll("[^0-9]+", "");
-            
+
             Endereco e = mapper.readValue(buscarCep(enderecoFormatado), Endereco.class);
             CepField.setText(enderecoFormatado);
             logradouroField.setText(e.getLogradouro());
@@ -198,7 +206,6 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             bairroField.setEditable(false);
             localidadeField.setEditable(false);
             ufField.setEditable(false);
-            System.out.println(""+e.getCep());
             this.endereco = e;
 
         } catch (IOException ex) {
