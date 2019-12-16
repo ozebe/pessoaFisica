@@ -184,7 +184,11 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
 
         final ObjectMapper mapper = new ObjectMapper();
         try {
-            Endereco e = mapper.readValue(buscarCep(CepField.getText().trim()), Endereco.class);
+            String enderecoFormatado = CepField.getText().trim();
+            enderecoFormatado = enderecoFormatado.replaceAll("[^0-9]+", "");
+            
+            Endereco e = mapper.readValue(buscarCep(enderecoFormatado), Endereco.class);
+            CepField.setText(enderecoFormatado);
             logradouroField.setText(e.getLogradouro());
             bairroField.setText(e.getBairro());
             localidadeField.setText(e.getLocalidade());
@@ -194,7 +198,7 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             bairroField.setEditable(false);
             localidadeField.setEditable(false);
             ufField.setEditable(false);
-
+            System.out.println(""+e.getCep());
             this.endereco = e;
 
         } catch (IOException ex) {
