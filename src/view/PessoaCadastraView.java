@@ -29,6 +29,8 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     public static INI user;
     public static INI password;
 
+    private static Endereco endereco;
+
     /**
      * Creates new form PessoaCadastraView
      *
@@ -71,11 +73,14 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         cadEnderecoBtn = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         cadContatoBtn = new javax.swing.JButton();
+        enderecoLabel = new javax.swing.JLabel();
 
         jButton2.setText("jButton2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        cadastrarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        cadastrarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/save.png"))); // NOI18N
         cadastrarBtn.setText("Cadastrar");
         cadastrarBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -104,6 +109,11 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         jLabel5.setText("Endereço:");
 
         cadEnderecoBtn.setText("Cadastrar Endereço");
+        cadEnderecoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cadEnderecoBtnActionPerformed(evt);
+            }
+        });
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("Contato:");
@@ -125,15 +135,18 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                     .addComponent(jLabel6))
                 .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cadastrarBtn)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(CpfField)
-                        .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(sexoField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cadEnderecoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-                        .addComponent(cadContatoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(nomeCompletoField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(56, Short.MAX_VALUE))
+                    .addComponent(nomeCompletoField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(cadastrarBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(CpfField, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jDateChooser1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(sexoField, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cadEnderecoBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                            .addComponent(cadContatoBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(enderecoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,11 +174,13 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(sexoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cadEnderecoBtn)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(cadEnderecoBtn)
+                                    .addComponent(enderecoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(cadContatoBtn))))
                     .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addComponent(cadastrarBtn)
                 .addGap(26, 26, 26))
         );
@@ -176,6 +191,12 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
 
     }//GEN-LAST:event_cadastrarBtnActionPerformed
+
+    private void cadEnderecoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadEnderecoBtnActionPerformed
+        final EnderecoCadastraView end = new EnderecoCadastraView();
+        end.setVisible(true);
+        cadEnderecoBtn.setEnabled(false);
+    }//GEN-LAST:event_cadEnderecoBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -212,11 +233,21 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         });
     }
 
+    public static Endereco getEndereco() {
+        return endereco;
+    }
+
+    public static void setEndereco(Endereco endereco) {
+        PessoaCadastraView.endereco = endereco;
+    }
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField CpfField;
     private javax.swing.JButton cadContatoBtn;
-    private javax.swing.JButton cadEnderecoBtn;
+    public static javax.swing.JButton cadEnderecoBtn;
     private javax.swing.JButton cadastrarBtn;
+    public static javax.swing.JLabel enderecoLabel;
     private javax.swing.JButton jButton2;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;

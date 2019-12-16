@@ -17,11 +17,12 @@ public class Endereco {
     private int id;
     private String cep;
     private String logradouro;
+    private int numero;
     private String complemento;
     private String bairro;
     private String localidade;
     private String uf;
-
+    
     public Endereco() {
     }
 
@@ -80,6 +81,16 @@ public class Endereco {
     public void setUf(String uf) {
         this.uf = uf;
     }
+
+    public int getNumero() {
+        return numero;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+    
+    
     
     
 

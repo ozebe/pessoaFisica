@@ -42,17 +42,21 @@
               </Group>
               <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="cadastrarBtn" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="CpfField" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jDateChooser1" alignment="0" max="32767" attributes="0"/>
-                      <Component id="sexoField" alignment="0" max="32767" attributes="0"/>
-                      <Component id="cadEnderecoBtn" pref="150" max="32767" attributes="0"/>
-                      <Component id="cadContatoBtn" max="32767" attributes="0"/>
-                  </Group>
                   <Component id="nomeCompletoField" min="-2" pref="250" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="cadastrarBtn" alignment="0" max="32767" attributes="0"/>
+                          <Component id="CpfField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jDateChooser1" alignment="0" max="32767" attributes="0"/>
+                          <Component id="sexoField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="cadEnderecoBtn" alignment="0" pref="150" max="32767" attributes="0"/>
+                          <Component id="cadContatoBtn" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="enderecoLabel" pref="270" max="32767" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace pref="56" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -85,7 +89,10 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="sexoField" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="cadEnderecoBtn" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="cadEnderecoBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="enderecoLabel" alignment="0" min="-2" pref="15" max="-2" attributes="0"/>
+                              </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="cadContatoBtn" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -93,7 +100,7 @@
                   </Group>
                   <Component id="jDateChooser1" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="35" max="32767" attributes="0"/>
+              <EmptySpace pref="25" max="32767" attributes="0"/>
               <Component id="cadastrarBtn" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
           </Group>
@@ -103,6 +110,12 @@
   <SubComponents>
     <Component class="javax.swing.JButton" name="cadastrarBtn">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="11" style="1"/>
+        </Property>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/view/images/save.png"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Cadastrar"/>
       </Properties>
       <Events>
@@ -180,6 +193,12 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Cadastrar Endere&#xe7;o"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cadEnderecoBtnActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
@@ -193,6 +212,11 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Cadastrar Contato"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="enderecoLabel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>
