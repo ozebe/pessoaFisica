@@ -10,6 +10,8 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="Cadastro de Pessoa Fisica"/>
+    <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -49,13 +51,16 @@
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Component id="cadastrarBtn" alignment="0" max="32767" attributes="0"/>
                                   <Component id="CpfField" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="jDateChooser1" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="dataNascimentoField" alignment="0" max="32767" attributes="0"/>
                                   <Component id="sexoField" alignment="0" max="32767" attributes="0"/>
                                   <Component id="cadEnderecoBtn" alignment="0" pref="150" max="32767" attributes="0"/>
                                   <Component id="cadContatoBtn" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="enderecoLabel" pref="270" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="enderecoLabel" max="32767" attributes="0"/>
+                                  <Component id="contatoLabel" pref="270" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                   </Group>
@@ -105,11 +110,14 @@
                                   <Component id="enderecoLabel" alignment="0" min="-2" pref="15" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="cadContatoBtn" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="cadContatoBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="contatoLabel" alignment="3" min="-2" pref="15" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                   </Group>
-                  <Component id="jDateChooser1" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataNascimentoField" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
@@ -182,7 +190,7 @@
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
     </Component>
-    <Component class="com.toedter.calendar.JDateChooser" name="jDateChooser1">
+    <Component class="com.toedter.calendar.JDateChooser" name="dataNascimentoField">
       <Properties>
         <Property name="maxSelectableDate" type="java.util.Date" editor="org.netbeans.beaninfo.editors.DateEditor">
           <SerializedValue value="-84,-19,0,5,115,114,0,14,106,97,118,97,46,117,116,105,108,46,68,97,116,101,104,106,-127,1,75,89,116,25,3,0,0,120,112,119,8,0,0,-26,112,123,21,21,-88,120"/>
@@ -233,6 +241,9 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cadContatoBtnActionPerformed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="enderecoLabel">
       <AuxValues>
@@ -254,6 +265,11 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Escolaridade:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="contatoLabel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

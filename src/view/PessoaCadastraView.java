@@ -7,6 +7,7 @@ package view;
 
 //import control.
 import control.ConnectionFactory;
+import control.Contato;
 import control.Endereco;
 import control.INI;
 import control.PessoaFisica;
@@ -33,6 +34,8 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     public static INI password;
 
     private static Endereco endereco;
+    private static Contato contato;
+    private String cpf;
 
     /**
      * Creates new form PessoaCadastraView
@@ -70,7 +73,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         sexoField = new javax.swing.JComboBox<>();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        dataNascimentoField = new com.toedter.calendar.JDateChooser();
         CpfField = new javax.swing.JTextField();
         nomeCompletoField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
@@ -80,10 +83,13 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         enderecoLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        contatoLabel = new javax.swing.JLabel();
 
         jButton2.setText("jButton2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Cadastro de Pessoa Fisica");
+        setResizable(false);
 
         cadastrarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         cadastrarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/save.png"))); // NOI18N
@@ -108,8 +114,8 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
         sexoField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Feminino", "Masculino" }));
 
-        jDateChooser1.setMaxSelectableDate(new java.util.Date(253370775705000L));
-        jDateChooser1.setMinSelectableDate(new java.util.Date(-2208973907000L));
+        dataNascimentoField.setMaxSelectableDate(new java.util.Date(253370775705000L));
+        dataNascimentoField.setMinSelectableDate(new java.util.Date(-2208973907000L));
 
         CpfField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -165,12 +171,14 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(cadastrarBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(CpfField, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jDateChooser1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(dataNascimentoField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(sexoField, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(cadEnderecoBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
                                     .addComponent(cadContatoBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(enderecoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(enderecoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(contatoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7)
@@ -208,8 +216,10 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                                     .addComponent(cadEnderecoBtn)
                                     .addComponent(enderecoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cadContatoBtn))))
-                    .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(cadContatoBtn)
+                                    .addComponent(contatoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(dataNascimentoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(27, 27, 27)
                 .addComponent(jLabel7)
                 .addGap(18, 18, 18)
@@ -223,7 +233,38 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        //pessoaF = new PessoaFisica(nomeCompletoField.getText(), CPF, dataNascimento, Sexo, endereco, contato);
+
+        try {
+            java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
+            if (nomeCompletoField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Favor preencher o nome!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else {
+                if (CpfField.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Favor preencher a data de nascimento!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    if (this.endereco.getCep().isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Favor preencher os dados de endereço!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        if (this.contato.getTelefone().isEmpty()) {
+                            JOptionPane.showMessageDialog(null, "Favor preencher os dados de contato!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            final PessoaFisica pessoa = new PessoaFisica(nomeCompletoField.getText(), this.cpf, sDate.toString(), sexoField.getSelectedItem().toString(), endereco, contato);
+                            System.out.println("CPF: "+pessoa.getCPF());
+                            System.out.println("Data nascimento: "+pessoa.getDataNascimento());
+                            System.out.println("Nome: "+pessoa.getNome());
+                            System.out.println("CEP: "+pessoa.getEndereco().getCep());
+                            System.out.println("Nome da rua: "+pessoa.getEndereco().getLogradouro());
+                            System.out.println("Telefone: "+pessoa.getContato().getTelefone());
+                        }
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(null, "Favor preencher todos os dados!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
     private void cadEnderecoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadEnderecoBtnActionPerformed
@@ -243,7 +284,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         cpf = cpf.replaceAll("[^0-9]+", "");
         if (ValidaCPF.isCPF(cpf)) {
             CpfField.setText(ValidaCPF.imprimeCPF(cpf));
-            
+            this.cpf = cpf;
         } else {
             JOptionPane.showMessageDialog(null, "CPF inválido!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             CpfField.requestFocus();
@@ -294,15 +335,29 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         PessoaCadastraView.endereco = endereco;
     }
 
+    public static Contato getContato() {
+        return contato;
+    }
+
+    public static void setContato(Contato contato) {
+        PessoaCadastraView.contato = contato;
+    }
+
+    private static java.sql.Date convertUtilToSql(java.util.Date uDate) {
+        java.sql.Date sDate = new java.sql.Date(uDate.getTime());
+        return sDate;
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField CpfField;
-    private javax.swing.JButton cadContatoBtn;
+    public static javax.swing.JButton cadContatoBtn;
     public static javax.swing.JButton cadEnderecoBtn;
     private javax.swing.JButton cadastrarBtn;
+    public static javax.swing.JLabel contatoLabel;
+    private com.toedter.calendar.JDateChooser dataNascimentoField;
     public static javax.swing.JLabel enderecoLabel;
     private javax.swing.JButton jButton2;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
