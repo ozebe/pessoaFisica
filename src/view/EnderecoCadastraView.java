@@ -6,6 +6,7 @@
 package view;
 
 import control.Endereco;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +92,12 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             }
         });
 
+        numeroField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                numeroFieldKeyPressed(evt);
+            }
+        });
+
         cadastrarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         cadastrarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/save.png"))); // NOI18N
         cadastrarBtn.setText("Cadastrar");
@@ -172,20 +179,7 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        String numeroFormatado = numeroField.getText();
-        numeroFormatado = numeroFormatado.replaceAll("[^0-9]+", "");
-        try {
-            this.endereco.setNumero(Integer.parseInt(numeroFormatado));
-            this.endereco.setComplemento(complementoField.getText());
-            PessoaCadastraView.setEndereco(this.endereco);
-            PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
-            PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
-            this.dispose();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
-
-        }
-
+        cadastra();
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
     private void CepFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CepFieldFocusLost
@@ -208,6 +202,7 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             ufField.setEditable(false);
             this.endereco = e;
 
+            numeroField.requestFocus();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao consultar CEP!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
 
@@ -233,6 +228,13 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void numeroFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numeroFieldKeyPressed
+              if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            cadastra();
+        }
+      
+    }//GEN-LAST:event_numeroFieldKeyPressed
 
     /**
      * @param args the command line arguments
@@ -281,6 +283,22 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
 
         json = jsonSb.toString();
         return json;
+    }
+
+    private void cadastra() {
+        String numeroFormatado = numeroField.getText();
+        numeroFormatado = numeroFormatado.replaceAll("[^0-9]+", "");
+        try {
+            this.endereco.setNumero(Integer.parseInt(numeroFormatado));
+            this.endereco.setComplemento(complementoField.getText());
+            PessoaCadastraView.setEndereco(this.endereco);
+            PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
+            PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
+            this.dispose();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
     }
 
     public Endereco getEndereco() {
