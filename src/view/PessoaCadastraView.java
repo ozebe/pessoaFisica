@@ -242,7 +242,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-
+        
         try {
             java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
             if (nomeCompletoField.getText().isEmpty()) {

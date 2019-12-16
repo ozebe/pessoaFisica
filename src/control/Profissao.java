@@ -13,6 +13,7 @@ public class Profissao {
     private int id;
     private String descricao;
     private int salario;
+    private String admissao;
     
     public int getId() {
         return id;
@@ -37,6 +38,15 @@ public class Profissao {
     public void setSalario(int salario) {
         this.salario = salario;
     }
+
+    public String getAdmissao() {
+        return admissao;
+    }
+
+    public void setAdmissao(String admissao) {
+        this.admissao = admissao;
+    }
+    
     
     
 }   

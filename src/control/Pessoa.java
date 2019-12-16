@@ -13,7 +13,8 @@ public abstract class Pessoa {
 
     private Endereco endereco;
     private Contato contato;
-    
+    private String criado;
+    private String editado;
     
     public Pessoa(Endereco endereco, Contato contato) {
         this.endereco = endereco;
@@ -34,6 +35,22 @@ public abstract class Pessoa {
 
     public void setContato(Contato contato) {
         this.contato = contato;
+    }
+
+    public String getCriado() {
+        return criado;
+    }
+
+    public void setCriado(String criado) {
+        this.criado = criado;
+    }
+
+    public String getEditado() {
+        return editado;
+    }
+
+    public void setEditado(String editado) {
+        this.editado = editado;
     }
     
     
