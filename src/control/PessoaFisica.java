@@ -11,7 +11,7 @@ public class PessoaFisica extends Pessoa {
     private String CPF;
     private String dataNascimento;
     private String Sexo;
-    private Escolaridade escolaridade;
+    private Escolaridade_Situacao escolaridade;
     private Profissao profissao;
     
     public PessoaFisica(String nome, String CPF, String dataNascimento, String Sexo, Endereco endereco, Contato contato) {
@@ -62,11 +62,11 @@ public class PessoaFisica extends Pessoa {
         this.Sexo = Sexo;
     }
 
-    public Escolaridade getEscolaridade() {
+    public Escolaridade_Situacao getEscolaridade() {
         return escolaridade;
     }
 
-    public void setEscolaridade(Escolaridade escolaridade) {
+    public void setEscolaridade(Escolaridade_Situacao escolaridade) {
         this.escolaridade = escolaridade;
     }
 

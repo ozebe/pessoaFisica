@@ -9,13 +9,18 @@ package view;
 import control.ConnectionFactory;
 import control.Contato;
 import control.Endereco;
+import control.Escolaridade_Situacao;
 import control.INI;
 import control.PessoaFisica;
+import control.Profissao;
 import control.Usuario;
 import control.ValidaCPF;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -25,17 +30,23 @@ import javax.swing.JOptionPane;
 public class PessoaCadastraView extends javax.swing.JFrame {
 
     private Usuario userLogado;
-    private PessoaFisica pessoaF;
     private static Connection connection;
     private static ConnectionFactory fabrica = new ConnectionFactory();
     //pega o caminho da base no arquivo .ini
-    public static INI db;
-    public static INI user;
-    public static INI password;
+//    public static INI db;
+//    public static INI user;
+//    public static INI password;
+    public static INI db = new INI("db-config", "local");
+    public static INI user = new INI("db-config", "user");
+    public static INI password = new INI("db-config", "password");
 
+    private PessoaFisica pessoaF;
     private static Endereco endereco;
     private static Contato contato;
     private String cpf;
+    //opcionais no cadastro
+    private static Escolaridade_Situacao escolaridade_situacao;
+    private static Profissao profissao;
 
     /**
      * Creates new form PessoaCadastraView
@@ -217,9 +228,9 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(sexoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(cadEnderecoBtn)
-                                    .addComponent(enderecoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(enderecoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cadEnderecoBtn))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(cadContatoBtn)
@@ -242,35 +253,76 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        
+
         try {
-            java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
+
             if (nomeCompletoField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher o nome!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (CpfField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Favor preencher a data de nascimento!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (this.endereco.getCep().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Favor preencher os dados de endereço!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (this.contato.getTelefone().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Favor preencher os dados de contato!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else {
-                if (CpfField.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Favor preencher a data de nascimento!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+//                final PessoaFisica pessoa = new PessoaFisica(nomeCompletoField.getText(), this.cpf, sDate.toString(), sexoField.getSelectedItem().toString(), endereco, contato);
+//                System.out.println("CPF: " + pessoa.getCPF());
+//                System.out.println("Data nascimento: " + pessoa.getDataNascimento());
+//                System.out.println("Nome: " + pessoa.getNome());
+//                System.out.println("CEP: " + pessoa.getEndereco().getCep());
+//                System.out.println("Nome da rua: " + pessoa.getEndereco().getLogradouro());
+//                System.out.println("Telefone: " + pessoa.getContato().getTelefone());
+
+                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+                String sql = "insert into pessoaFisica(nome, cpf, dataNascimento, sexo, contatoId, enderecoId, criado) values\n"
+                        + "(?, ?, ?, ?, \n"
+                        + "/*busca contato*/(select id from contato where (telefone = ? AND ddd = ?) OR email = ?), \n"
+                        + "/*busca endereco*/(select id from endereco e where e.cep = ? and e.numero = ?), current_timestamp);";
+
+                PreparedStatement pstmt = connection.prepareStatement(sql);
+
+                //seta o nome
+                pstmt.setString(1, nomeCompletoField.getText());
+                //seta o cpf
+                pstmt.setString(2, this.cpf);
+                //seta a data de nascimento
+                java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
+                pstmt.setDate(3, sDate);
+                //seta o sexo
+                if (sexoField.getSelectedIndex() == 0) {
+                    pstmt.setString(4, "F");
                 } else {
-                    if (this.endereco.getCep().isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Favor preencher os dados de endereço!\n", "Erro", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        if (this.contato.getTelefone().isEmpty()) {
-                            JOptionPane.showMessageDialog(null, "Favor preencher os dados de contato!\n", "Erro", JOptionPane.ERROR_MESSAGE);
-                        } else {
-                            final PessoaFisica pessoa = new PessoaFisica(nomeCompletoField.getText(), this.cpf, sDate.toString(), sexoField.getSelectedItem().toString(), endereco, contato);
-                            System.out.println("CPF: "+pessoa.getCPF());
-                            System.out.println("Data nascimento: "+pessoa.getDataNascimento());
-                            System.out.println("Nome: "+pessoa.getNome());
-                            System.out.println("CEP: "+pessoa.getEndereco().getCep());
-                            System.out.println("Nome da rua: "+pessoa.getEndereco().getLogradouro());
-                            System.out.println("Telefone: "+pessoa.getContato().getTelefone());
-                        }
-                    }
+                    pstmt.setString(4, "M");
                 }
+                //telefone do contato para busca
+                pstmt.setString(5, PessoaCadastraView.contato.getTelefone());
+                //ddd do contato para busca
+                pstmt.setString(6, PessoaCadastraView.contato.getDdd());
+                //ou pega o email do contato para busca
+                pstmt.setString(7, PessoaCadastraView.contato.getEmail());
+                //cep para busca de endereco
+                pstmt.setString(8, PessoaCadastraView.endereco.getCep());
+                //numero para busca de endereço
+                pstmt.setInt(9, PessoaCadastraView.endereco.getNumero());
+
+//                //criado
+//                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+//                //formatador.format(timestamp)
+//                pstmt.setTimestamp(6, timestamp); //String.valueOf(formatador.format(timestamp))
+                pstmt.executeUpdate();
+                pstmt.close();
+                connection.close();
+
             }
         } catch (NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Favor preencher todos os dados!\n", "Erro", JOptionPane.ERROR_MESSAGE);
 
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
         }
 
 

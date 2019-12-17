@@ -5,7 +5,15 @@
  */
 package view;
 
+import control.ConnectionFactory;
 import control.Contato;
+import control.INI;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -13,6 +21,16 @@ import javax.swing.JOptionPane;
  * @author wesley.santos
  */
 public class ContatoCadastraView extends javax.swing.JFrame {
+
+    private static Connection connection;
+    private static ConnectionFactory fabrica = new ConnectionFactory();
+    //pega o caminho da base no arquivo .ini
+//    public static INI db;
+//    public static INI user;
+//    public static INI password;
+    public static INI db = new INI("db-config", "local");
+    public static INI user = new INI("db-config", "user");
+    public static INI password = new INI("db-config", "password");
 
     /**
      * Creates new form ContatoCadastraView
@@ -125,22 +143,47 @@ public class ContatoCadastraView extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        String ddd = dddField.getText().trim();
-        ddd = ddd.replaceAll("[^0-9]+", "");
+        try {
+            String ddd = dddField.getText().trim();
+            ddd = ddd.replaceAll("[^0-9]+", "");
 
-        String telefone = telefoneField.getText().trim();
-        telefone = telefone.replaceAll("[^0-9]+", "");
-        
-        Contato c = new Contato();
-        c.setDdd(ddd);
-        c.setTelefone(telefone);
-        c.setEmail(emailField.getText().toLowerCase());
-        
-        PessoaCadastraView.setContato(c);
-        
-        PessoaCadastraView.cadContatoBtn.setEnabled(true);
-        PessoaCadastraView.contatoLabel.setText("("+PessoaCadastraView.getContato().getDdd()+ ") "+PessoaCadastraView.getContato().getTelefone());
-        this.dispose();
+            String telefone = telefoneField.getText().trim();
+            telefone = telefone.replaceAll("[^0-9]+", "");
+
+            Contato c = new Contato();
+            c.setDdd(ddd);
+            c.setTelefone(telefone);
+            c.setEmail(emailField.getText().toLowerCase());
+
+            PessoaCadastraView.setContato(c);
+
+            //insere na base
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+            String sql = "insert into contato(ddd, telefone, email, criado) values\n"
+                    + "(?,?,?,?)";
+
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+
+            pstmt.setString(1, dddField.getText());
+            pstmt.setString(2, telefoneField.getText());
+            pstmt.setString(3, emailField.getText());
+            java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+            pstmt.setTimestamp(4, timestamp);
+            pstmt.executeUpdate();
+            pstmt.close();
+            connection.close();
+            //--------
+
+            PessoaCadastraView.cadContatoBtn.setEnabled(true);
+            PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
+            this.dispose();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
     /**
@@ -177,7 +220,6 @@ public class ContatoCadastraView extends javax.swing.JFrame {
 //            }
 //        });
 //    }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cadastrarBtn;

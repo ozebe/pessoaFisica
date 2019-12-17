@@ -5,7 +5,9 @@
  */
 package view;
 
+import control.ConnectionFactory;
 import control.Endereco;
+import control.INI;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +16,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -24,6 +31,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class EnderecoCadastraView extends javax.swing.JFrame {
 
     private Endereco endereco;
+
+    private static Connection connection;
+    private static ConnectionFactory fabrica = new ConnectionFactory();
+    //pega o caminho da base no arquivo .ini
+    public static INI db = new INI("db-config", "local");;
+    public static INI user = new INI("db-config", "user");
+    public static INI password = new INI("db-config", "password");
+//
+//    db  = new INI(chave, valor);
+//    user  = new INI(chave, usuario);
+//    password  = new INI(chave, senha);
 
     /**
      * Creates new form EnderecoCadastraView
@@ -230,10 +248,10 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void numeroFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numeroFieldKeyPressed
-              if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             cadastra();
         }
-      
+
     }//GEN-LAST:event_numeroFieldKeyPressed
 
     /**
@@ -294,10 +312,39 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             PessoaCadastraView.setEndereco(this.endereco);
             PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
             PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
+            //cria conexão e insere no banco
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+            String sql = "insert into endereco(logradouro, numero, cep, complemento, bairro, localidade, uf, criado) values\n"
+                    + "(?,?,?,?,?,?,?,?);";
+
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+
+            pstmt.setString(1, this.endereco.getLogradouro());
+            pstmt.setInt(2, this.endereco.getNumero());
+            pstmt.setString(3, this.endereco.getCep());
+
+            pstmt.setString(4, this.endereco.getComplemento());
+            pstmt.setString(5, this.endereco.getBairro());
+            pstmt.setString(6, this.endereco.getLocalidade());
+            pstmt.setString(7, this.endereco.getUf());
+            //criado
+            java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+            pstmt.setTimestamp(8, timestamp); //String.valueOf(formatador.format(timestamp))
+
+            pstmt.executeUpdate();
+            pstmt.close();
+            connection.close();
+            //------
             this.dispose();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
 
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
