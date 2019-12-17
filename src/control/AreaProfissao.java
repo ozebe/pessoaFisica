@@ -9,16 +9,12 @@ package control;
  *
  * @author wesley.santos
  */
-public class Profissao {
+public class AreaProfissao {
     private int id;
-    private int tipoProfissaoId;
-    private int salario;
-    private String admissao;
+    private String descricao;
     private String criado;
     private String editado;
-    
-    public Profissao() {
-    }
+
     public int getId() {
         return id;
     }
@@ -26,21 +22,13 @@ public class Profissao {
     public void setId(int id) {
         this.id = id;
     }
-    
-    public int getSalario() {
-        return salario;
+
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setSalario(int salario) {
-        this.salario = salario;
-    }
-
-    public String getAdmissao() {
-        return admissao;
-    }
-
-    public void setAdmissao(String admissao) {
-        this.admissao = admissao;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
     public String getCriado() {
@@ -58,4 +46,6 @@ public class Profissao {
     public void setEditado(String editado) {
         this.editado = editado;
     }
-}   
+
+    
+}
