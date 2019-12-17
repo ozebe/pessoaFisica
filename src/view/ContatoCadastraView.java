@@ -143,6 +143,7 @@ public class ContatoCadastraView extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
+//        if(!iscadastrado(telefoneField.getText().trim(), emailField.getText().trim()))
         try {
             String ddd = dddField.getText().trim();
             ddd = ddd.replaceAll("[^0-9]+", "");
@@ -163,7 +164,7 @@ public class ContatoCadastraView extends javax.swing.JFrame {
                     + "(?,?,?,?)";
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
-
+            
             pstmt.setString(1, dddField.getText());
             pstmt.setString(2, telefoneField.getText());
             pstmt.setString(3, emailField.getText());
@@ -173,8 +174,8 @@ public class ContatoCadastraView extends javax.swing.JFrame {
             pstmt.close();
             connection.close();
             //--------
-
-            PessoaCadastraView.cadContatoBtn.setEnabled(true);
+            
+            PessoaCadastraView.cadContatoBtn.setEnabled(false);
             PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
             this.dispose();
         } catch (ClassNotFoundException ex) {
@@ -185,7 +186,12 @@ public class ContatoCadastraView extends javax.swing.JFrame {
             Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_cadastrarBtnActionPerformed
-
+    
+    
+    public boolean iscadastrado(String telefone, String email){
+        
+        return true;
+    }
     /**
      * @param args the command line arguments
      */

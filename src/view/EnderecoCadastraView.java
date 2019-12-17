@@ -335,6 +335,7 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             pstmt.close();
             connection.close();
             //------
+            PessoaCadastraView.cadEnderecoBtn.setEnabled(false);
             this.dispose();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
