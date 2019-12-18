@@ -8,9 +8,11 @@ package view;
 import control.ConnectionFactory;
 import control.Contato;
 import control.INI;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +76,24 @@ public class ContatoCadastraView extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setText("Email:");
 
+        emailField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                emailFieldKeyPressed(evt);
+            }
+        });
+
+        telefoneField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                telefoneFieldKeyPressed(evt);
+            }
+        });
+
+        dddField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                dddFieldKeyPressed(evt);
+            }
+        });
+
         cadastrarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         cadastrarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/save.png"))); // NOI18N
         cadastrarBtn.setText("Cadastrar");
@@ -112,7 +132,7 @@ public class ContatoCadastraView extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
+                .addContainerGap(31, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(dddField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -143,54 +163,102 @@ public class ContatoCadastraView extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-//        if(!iscadastrado(telefoneField.getText().trim(), emailField.getText().trim()))
-        try {
-            String ddd = dddField.getText().trim();
-            ddd = ddd.replaceAll("[^0-9]+", "");
+        String telefoneFormatado = telefoneField.getText().trim();
+        telefoneFormatado = telefoneFormatado.replaceAll("[^0-9]+", "");
 
-            String telefone = telefoneField.getText().trim();
-            telefone = telefone.replaceAll("[^0-9]+", "");
+        String dddFormatado = dddField.getText();
+        dddFormatado = dddFormatado.replaceAll("[^0-9]+", "");
+        if (!iscadastrado(telefoneFormatado, emailField.getText().trim())) {
+            try {
+                Contato c = new Contato();
+                c.setDdd(dddFormatado);
+                c.setTelefone(telefoneFormatado);
+                c.setEmail(emailField.getText().toLowerCase());
 
-            Contato c = new Contato();
-            c.setDdd(ddd);
-            c.setTelefone(telefone);
-            c.setEmail(emailField.getText().toLowerCase());
+                PessoaCadastraView.setContato(c);
 
-            PessoaCadastraView.setContato(c);
+                //insere na base
+                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+                String sql = "insert into contato(ddd, telefone, email, criado) values\n"
+                        + "(?,?,?,?)";
 
-            //insere na base
-            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
-            String sql = "insert into contato(ddd, telefone, email, criado) values\n"
-                    + "(?,?,?,?)";
+                PreparedStatement pstmt = connection.prepareStatement(sql);
 
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            
-            pstmt.setString(1, dddField.getText());
-            pstmt.setString(2, telefoneField.getText());
-            pstmt.setString(3, emailField.getText());
-            java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-            pstmt.setTimestamp(4, timestamp);
-            pstmt.executeUpdate();
-            pstmt.close();
-            connection.close();
-            //--------
-            
-            PessoaCadastraView.cadContatoBtn.setEnabled(false);
-            PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
-            this.dispose();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+                pstmt.setString(1, dddField.getText());
+                pstmt.setString(2, telefoneField.getText());
+                pstmt.setString(3, emailField.getText());
+                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+                pstmt.setTimestamp(4, timestamp);
+                pstmt.executeUpdate();
+                pstmt.close();
+                connection.close();
+                //--------
+
+                PessoaCadastraView.cadContatoBtn.setEnabled(false);
+                PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
+                this.dispose();
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Já existem cadastros com as informações de contato passadas!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+
         }
     }//GEN-LAST:event_cadastrarBtnActionPerformed
-    
-    
-    public boolean iscadastrado(String telefone, String email){
-        
-        return true;
+
+    private void dddFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dddFieldKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            telefoneField.requestFocus();
+        }
+    }//GEN-LAST:event_dddFieldKeyPressed
+
+    private void telefoneFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_telefoneFieldKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            emailField.requestFocus();
+        }
+    }//GEN-LAST:event_telefoneFieldKeyPressed
+
+    private void emailFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailFieldKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            cadastrarBtn.requestFocus();
+        }
+    }//GEN-LAST:event_emailFieldKeyPressed
+
+    public boolean iscadastrado(String telefone, String email) {
+        try {
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+
+            PreparedStatement stmt = connection.prepareStatement("select count(id) as res from contato\n"
+                    + "where (ddd = ? and telefone = ?) or (email = ?);");
+            stmt.setString(1, dddField.getText());
+            stmt.setString(2, telefoneField.getText());
+            stmt.setString(3, emailField.getText());
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+                if (resultSet.getInt("res") != 0) {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return true;
+                } else {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return false;
+                }
+            }
+
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+        return false;
     }
     /**
      * @param args the command line arguments
