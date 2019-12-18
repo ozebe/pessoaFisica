@@ -275,7 +275,6 @@ public class PessoaCadastraView extends javax.swing.JFrame {
             }
         } catch (NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Favor preencher todos os dados!\n", "Erro", JOptionPane.ERROR_MESSAGE);
-
         }
 
 
@@ -381,7 +380,6 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
     private void cadastraPessoaFisica() {
         try {
-            //verificar
             cadastraEndereco();
             cadastraContato();
 
@@ -393,14 +391,14 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
             PreparedStatement pstmt = connection.prepareStatement(sql);
 
-//seta o nome
-            pstmt.setString(1, nomeCompletoField.getText());
-//seta o cpf
+            //seta o nome
+            pstmt.setString(1, nomeCompletoField.getText().toUpperCase());
+            //seta o cpf
             pstmt.setString(2, this.cpf);
-//seta a data de nascimento
+            //seta a data de nascimento
             java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
             pstmt.setDate(3, sDate);
-//seta o sexo
+            //seta o sexo
             if (sexoField.getSelectedIndex() == 0) {
                 pstmt.setString(4, "F");
             } else {
