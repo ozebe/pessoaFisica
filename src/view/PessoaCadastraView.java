@@ -18,6 +18,7 @@ import control.ValidaCPF;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +45,9 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     private static Endereco endereco;
     private static Contato contato;
     private String cpf;
+
+    public static boolean cadastraEndereco = false;
+    public static boolean cadastraContato = false;
     //opcionais no cadastro
     private static Escolaridade_Situacao escolaridade_situacao;
     private static Profissao profissao;
@@ -259,70 +263,19 @@ public class PessoaCadastraView extends javax.swing.JFrame {
             if (nomeCompletoField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher o nome!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else if (CpfField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Favor preencher o CPF!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (dataNascimentoField.getDate() == null) {
                 JOptionPane.showMessageDialog(null, "Favor preencher a data de nascimento!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else if (this.endereco.getCep().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher os dados de endereço!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else if (this.contato.getTelefone().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher os dados de contato!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else {
-//                final PessoaFisica pessoa = new PessoaFisica(nomeCompletoField.getText(), this.cpf, sDate.toString(), sexoField.getSelectedItem().toString(), endereco, contato);
-//                System.out.println("CPF: " + pessoa.getCPF());
-//                System.out.println("Data nascimento: " + pessoa.getDataNascimento());
-//                System.out.println("Nome: " + pessoa.getNome());
-//                System.out.println("CEP: " + pessoa.getEndereco().getCep());
-//                System.out.println("Nome da rua: " + pessoa.getEndereco().getLogradouro());
-//                System.out.println("Telefone: " + pessoa.getContato().getTelefone());
-
-                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
-                String sql = "insert into pessoaFisica(nome, cpf, dataNascimento, sexo, contatoId, enderecoId, criado) values\n"
-                        + "(?, ?, ?, ?, \n"
-                        + "/*busca contato*/(select id from contato where (telefone = ? AND ddd = ?) OR email = ?), \n"
-                        + "/*busca endereco*/(select id from endereco e where e.cep = ? and e.numero = ?), current_timestamp);";
-
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-
-                //seta o nome
-                pstmt.setString(1, nomeCompletoField.getText());
-                //seta o cpf
-                pstmt.setString(2, this.cpf);
-                //seta a data de nascimento
-                java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
-                pstmt.setDate(3, sDate);
-                //seta o sexo
-                if (sexoField.getSelectedIndex() == 0) {
-                    pstmt.setString(4, "F");
-                } else {
-                    pstmt.setString(4, "M");
-                }
-                //telefone do contato para busca
-                pstmt.setString(5, PessoaCadastraView.contato.getTelefone());
-                //ddd do contato para busca
-                pstmt.setString(6, PessoaCadastraView.contato.getDdd());
-                //ou pega o email do contato para busca
-                pstmt.setString(7, PessoaCadastraView.contato.getEmail());
-                //cep para busca de endereco
-                pstmt.setString(8, PessoaCadastraView.endereco.getCep());
-                //numero para busca de endereço
-                pstmt.setInt(9, PessoaCadastraView.endereco.getNumero());
-
-//                //criado
-//                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-//                //formatador.format(timestamp)
-//                pstmt.setTimestamp(6, timestamp); //String.valueOf(formatador.format(timestamp))
-                pstmt.executeUpdate();
-                pstmt.close();
-                connection.close();
-
+                cadastraPessoaFisica();
             }
         } catch (NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Favor preencher todos os dados!\n", "Erro", JOptionPane.ERROR_MESSAGE);
 
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
         }
 
 
@@ -344,14 +297,171 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         String cpf = CpfField.getText().trim();
         cpf = cpf.replaceAll("[^0-9]+", "");
         if (ValidaCPF.isCPF(cpf)) {
-            CpfField.setText(ValidaCPF.imprimeCPF(cpf));
-            this.cpf = cpf;
+            if (!cpfDuplicado(cpf)) {
+                CpfField.setText(ValidaCPF.imprimeCPF(cpf));
+                this.cpf = cpf;
+            } else {
+                
+                JOptionPane.showMessageDialog(null, "CPF já cadastrado!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+                CpfField.setText("");
+                CpfField.requestFocus();
+            }
+
         } else {
             JOptionPane.showMessageDialog(null, "CPF inválido!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             CpfField.requestFocus();
             CpfField.setText("");
         }
     }//GEN-LAST:event_CpfFieldFocusLost
+
+    private void cadastraEndereco() {
+        if (PessoaCadastraView.cadastraEndereco == true) {
+            try {
+                //cria conexão e insere no banco
+                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+                String sql = "insert into endereco(logradouro, numero, cep, complemento, bairro, localidade, uf, criado) values\n"
+                        + "(?,?,?,?,?,?,?,?);";
+
+                PreparedStatement pstmt = connection.prepareStatement(sql);
+
+                pstmt.setString(1, PessoaCadastraView.endereco.getLogradouro());
+                pstmt.setInt(2, PessoaCadastraView.endereco.getNumero());
+                pstmt.setString(3, PessoaCadastraView.endereco.getCep());
+
+                pstmt.setString(4, PessoaCadastraView.endereco.getComplemento());
+                pstmt.setString(5, PessoaCadastraView.endereco.getBairro());
+                pstmt.setString(6, PessoaCadastraView.endereco.getLocalidade());
+                pstmt.setString(7, PessoaCadastraView.endereco.getUf());
+                //criado
+                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+                pstmt.setTimestamp(8, timestamp); //String.valueOf(formatador.format(timestamp))
+
+                pstmt.executeUpdate();
+                pstmt.close();
+                connection.close();
+                //------
+            } catch (ClassNotFoundException | SQLException | IOException ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao cadastrar endereço!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+
+        }
+
+    }
+
+    private void cadastraContato() {
+        if (PessoaCadastraView.cadastraContato == true) {
+            try {
+                //insere na base
+                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+                String sql = "insert into contato(ddd, telefone, email, criado) values\n"
+                        + "(?,?,?,?)";
+
+                PreparedStatement pstmt = connection.prepareStatement(sql);
+
+                pstmt.setString(1, PessoaCadastraView.contato.getDdd());
+                pstmt.setString(2, PessoaCadastraView.contato.getTelefone());
+                pstmt.setString(3, PessoaCadastraView.contato.getEmail());
+                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+                pstmt.setTimestamp(4, timestamp);
+                pstmt.executeUpdate();
+                pstmt.close();
+                connection.close();
+                //--------
+            } catch (ClassNotFoundException | SQLException | IOException ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao cadastrar contato!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+
+        }
+
+    }
+
+    private void cadastraPessoaFisica() {
+        try {
+            //verificar
+            cadastraEndereco();
+            cadastraContato();
+
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+            String sql = "insert into pessoaFisica(nome, cpf, dataNascimento, sexo, contatoId, enderecoId, criado) values\n"
+                    + "(?, ?, ?, ?, \n"
+                    + "/*busca contato*/(select id from contato where (telefone = ? AND ddd = ?)), \n"
+                    + "/*busca endereco*/(select id from endereco e where e.cep = ? and e.numero = ?), current_timestamp);";
+
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+
+//seta o nome
+            pstmt.setString(1, nomeCompletoField.getText());
+//seta o cpf
+            pstmt.setString(2, this.cpf);
+//seta a data de nascimento
+            java.sql.Date sDate = convertUtilToSql(dataNascimentoField.getDate());
+            pstmt.setDate(3, sDate);
+//seta o sexo
+            if (sexoField.getSelectedIndex() == 0) {
+                pstmt.setString(4, "F");
+            } else {
+                pstmt.setString(4, "M");
+            }
+//telefone do contato para busca
+            pstmt.setString(5, PessoaCadastraView.contato.getTelefone());
+//ddd do contato para busca
+            pstmt.setString(6, PessoaCadastraView.contato.getDdd());
+//ou pega o email do contato para busca
+            //pstmt.setString(7, PessoaCadastraView.contato.getEmail());
+//cep para busca de endereco
+            pstmt.setString(7, PessoaCadastraView.endereco.getCep());
+//numero para busca de endereço
+            pstmt.setInt(8, PessoaCadastraView.endereco.getNumero());
+
+//                //criado
+//                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+//                //formatador.format(timestamp)
+//                pstmt.setTimestamp(6, timestamp); //String.valueOf(formatador.format(timestamp))
+            pstmt.executeUpdate();
+            pstmt.close();
+            connection.close();
+            JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!\n", "Cadastro realizado", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao cadastrar pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private boolean cpfDuplicado(String cpf) {
+        try {
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+
+            PreparedStatement stmt = connection.prepareStatement("select count(p.id) as cp\n"
+                    + "from pessoaFisica p\n"
+                    + "where p.cpf= ?");
+
+            stmt.setString(1, cpf);
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                if (resultSet.getInt("cp") != 0) {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return true;
+                } else {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return false;
+                }
+            }
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
 
     /**
      * @param args the command line arguments

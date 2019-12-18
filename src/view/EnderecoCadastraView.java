@@ -18,6 +18,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,8 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
     private static Connection connection;
     private static ConnectionFactory fabrica = new ConnectionFactory();
     //pega o caminho da base no arquivo .ini
-    public static INI db = new INI("db-config", "local");;
+    public static INI db = new INI("db-config", "local");
+
     public static INI user = new INI("db-config", "user");
     public static INI password = new INI("db-config", "password");
 //
@@ -197,7 +199,24 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cadastrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cadastrarBtnActionPerformed
-        cadastra();
+        if (!iscadastrado()) {
+            cadastra();
+            PessoaCadastraView.cadastraEndereco = true;
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null, "O endereço de CEP  e número já esta cadastrado!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+
+            int output = JOptionPane.showConfirmDialog(null, "Deseja apenas vincular o endereço ao usuario?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (output == 0) {
+                cadastra();
+                PessoaCadastraView.cadastraEndereco = false;
+                this.dispose();
+            } else if (output == 1) {
+
+            }
+
+        }
+
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
     private void CepFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_CepFieldFocusLost
@@ -218,7 +237,9 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
             bairroField.setEditable(false);
             localidadeField.setEditable(false);
             ufField.setEditable(false);
+
             this.endereco = e;
+            this.endereco.setCep(enderecoFormatado);
 
             numeroField.requestFocus();
         } catch (IOException ex) {
@@ -249,7 +270,23 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
 
     private void numeroFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numeroFieldKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            cadastra();
+            if (!iscadastrado()) {
+                cadastra();
+                PessoaCadastraView.cadastraEndereco = true;
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "O endereço de CEP  e número já esta cadastrado!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+                
+                int output = JOptionPane.showConfirmDialog(null, "Deseja apenas vincular o endereço ao usuario?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (output == 0) {
+                    cadastra();
+                    PessoaCadastraView.cadastraEndereco = false;
+                    this.dispose();
+                } else if (output == 1) {
+
+                }
+            }
+
         }
 
     }//GEN-LAST:event_numeroFieldKeyPressed
@@ -309,43 +346,21 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
         try {
             this.endereco.setNumero(Integer.parseInt(numeroFormatado));
             this.endereco.setComplemento(complementoField.getText());
+
+            //se o cep não pegou automaticamente
+//            this.endereco.setLogradouro(logradouroField.getText());
+//            this.endereco.setBairro(bairroField.getText());
+//            this.endereco.setLocalidade(localidadeField.getText());
+//            this.endereco.setUf(ufField.getText());
             PessoaCadastraView.setEndereco(this.endereco);
             PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
             PessoaCadastraView.enderecoLabel.setText(PessoaCadastraView.getEndereco().getLogradouro() + ", " + PessoaCadastraView.getEndereco().getNumero());
-            //cria conexão e insere no banco
-            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
-            String sql = "insert into endereco(logradouro, numero, cep, complemento, bairro, localidade, uf, criado) values\n"
-                    + "(?,?,?,?,?,?,?,?);";
 
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-
-            pstmt.setString(1, this.endereco.getLogradouro());
-            pstmt.setInt(2, this.endereco.getNumero());
-            pstmt.setString(3, this.endereco.getCep());
-
-            pstmt.setString(4, this.endereco.getComplemento());
-            pstmt.setString(5, this.endereco.getBairro());
-            pstmt.setString(6, this.endereco.getLocalidade());
-            pstmt.setString(7, this.endereco.getUf());
-            //criado
-            java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-            pstmt.setTimestamp(8, timestamp); //String.valueOf(formatador.format(timestamp))
-
-            pstmt.executeUpdate();
-            pstmt.close();
-            connection.close();
-            //------
             PessoaCadastraView.cadEnderecoBtn.setEnabled(false);
-            this.dispose();
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Número incorreto!\n" + e, "Erro", JOptionPane.ERROR_MESSAGE);
 
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(EnderecoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -357,6 +372,45 @@ public class EnderecoCadastraView extends javax.swing.JFrame {
         this.endereco = endereco;
     }
 
+    public boolean iscadastrado() {
+
+        String numeroFormatado = numeroField.getText();
+        numeroFormatado = numeroFormatado.replaceAll("[^0-9]+", "");
+
+        String enderecoFormatado = CepField.getText().trim();
+        enderecoFormatado = enderecoFormatado.replaceAll("[^0-9]+", "");
+        try {
+            connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+
+            PreparedStatement stmt = connection.prepareStatement("select count(e.id) as ende\n"
+                    + "from endereco e\n"
+                    + "where e.cep= ? and e.numero = ?");
+
+            stmt.setString(1, enderecoFormatado);
+            stmt.setInt(2, Integer.parseInt(numeroFormatado));
+
+            ResultSet resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                if (resultSet.getInt("ende") != 0) {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return true;
+                } else {
+                    resultSet.close();
+                    stmt.close();
+                    connection.close();
+                    return false;
+                }
+            }
+
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+        return false;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField CepField;

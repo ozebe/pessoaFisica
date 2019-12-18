@@ -168,8 +168,26 @@ public class ContatoCadastraView extends javax.swing.JFrame {
 
         String dddFormatado = dddField.getText();
         dddFormatado = dddFormatado.replaceAll("[^0-9]+", "");
-        if (!iscadastrado(telefoneFormatado, emailField.getText().trim())) {
-            try {
+        if (!iscadastrado()) {
+
+            Contato c = new Contato();
+            c.setDdd(dddFormatado);
+            c.setTelefone(telefoneFormatado);
+            c.setEmail(emailField.getText().toLowerCase());
+
+            PessoaCadastraView.setContato(c);
+            
+            PessoaCadastraView.cadContatoBtn.setEnabled(false);
+            PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
+            PessoaCadastraView.cadastraContato = true;
+            this.dispose();
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Já existem cadastros com as informações de contato passadas!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+
+            int output = JOptionPane.showConfirmDialog(null, "Deseja apenas vincular o contato ao usuario?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (output == 0) {
+                
                 Contato c = new Contato();
                 c.setDdd(dddFormatado);
                 c.setTelefone(telefoneFormatado);
@@ -177,36 +195,12 @@ public class ContatoCadastraView extends javax.swing.JFrame {
 
                 PessoaCadastraView.setContato(c);
 
-                //insere na base
-                connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
-                String sql = "insert into contato(ddd, telefone, email, criado) values\n"
-                        + "(?,?,?,?)";
-
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-
-                pstmt.setString(1, dddField.getText());
-                pstmt.setString(2, telefoneField.getText());
-                pstmt.setString(3, emailField.getText());
-                java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-                pstmt.setTimestamp(4, timestamp);
-                pstmt.executeUpdate();
-                pstmt.close();
-                connection.close();
-                //--------
-
                 PessoaCadastraView.cadContatoBtn.setEnabled(false);
                 PessoaCadastraView.contatoLabel.setText("(" + PessoaCadastraView.getContato().getDdd() + ") " + PessoaCadastraView.getContato().getTelefone());
                 this.dispose();
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SQLException ex) {
-                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(ContatoCadastraView.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "Já existem cadastros com as informações de contato passadas!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (output == 1) {
 
+            }
         }
     }//GEN-LAST:event_cadastrarBtnActionPerformed
 
@@ -228,15 +222,14 @@ public class ContatoCadastraView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_emailFieldKeyPressed
 
-    public boolean iscadastrado(String telefone, String email) {
+    public boolean iscadastrado() {
         try {
             connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
 
             PreparedStatement stmt = connection.prepareStatement("select count(id) as res from contato\n"
-                    + "where (ddd = ? and telefone = ?) or (email = ?);");
+                    + "where (ddd = ? and telefone = ?);");
             stmt.setString(1, dddField.getText());
             stmt.setString(2, telefoneField.getText());
-            stmt.setString(3, emailField.getText());
             ResultSet resultSet = stmt.executeQuery();
 
             while (resultSet.next()) {
@@ -260,6 +253,8 @@ public class ContatoCadastraView extends javax.swing.JFrame {
         }
         return false;
     }
+    
+
     /**
      * @param args the command line arguments
      */
