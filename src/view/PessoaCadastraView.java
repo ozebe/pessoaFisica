@@ -34,12 +34,9 @@ public class PessoaCadastraView extends javax.swing.JFrame {
     private static Connection connection;
     private static ConnectionFactory fabrica = new ConnectionFactory();
     //pega o caminho da base no arquivo .ini
-//    public static INI db;
-//    public static INI user;
-//    public static INI password;
-    public static INI db = new INI("db-config", "local");
-    public static INI user = new INI("db-config", "user");
-    public static INI password = new INI("db-config", "password");
+    public static INI db;
+    public static INI user;
+    public static INI password;
 
     private PessoaFisica pessoaF;
     private static Endereco endereco;
@@ -60,16 +57,16 @@ public class PessoaCadastraView extends javax.swing.JFrame {
      * @param usuario
      * @param senha
      */
-//    public PessoaCadastraView(String chave, String valor, String usuario, String senha)  throws ClassNotFoundException, SQLException, IOException {
-//        db = new INI(chave, valor);
-//        user = new INI(chave, usuario);
-//        password = new INI(chave, senha);
-//        initComponents();
-//    }
-    public PessoaCadastraView() {
-
+    public PessoaCadastraView(String chave, String valor, String usuario, String senha)  throws ClassNotFoundException, SQLException, IOException {
+        db = new INI(chave, valor);
+        user = new INI(chave, usuario);
+        password = new INI(chave, senha);
         initComponents();
     }
+//    public PessoaCadastraView() {
+//
+//        initComponents();
+//    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -461,40 +458,40 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         return false;
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PessoaCadastraView().setVisible(true);
-            }
-        });
-    }
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(PessoaCadastraView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new PessoaCadastraView().setVisible(true);
+//            }
+//        });
+//    }
 
     public static Endereco getEndereco() {
         return endereco;
