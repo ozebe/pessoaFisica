@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -57,7 +58,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
      * @param usuario
      * @param senha
      */
-    public PessoaCadastraView(String chave, String valor, String usuario, String senha)  throws ClassNotFoundException, SQLException, IOException {
+    public PessoaCadastraView(String chave, String valor, String usuario, String senha) throws ClassNotFoundException, SQLException, IOException {
         db = new INI(chave, valor);
         user = new INI(chave, usuario);
         password = new INI(chave, senha);
@@ -297,7 +298,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
                 CpfField.setText(ValidaCPF.imprimeCPF(cpf));
                 this.cpf = cpf;
             } else {
-                
+
                 JOptionPane.showMessageDialog(null, "CPF já cadastrado!\n", "Erro", JOptionPane.ERROR_MESSAGE);
                 CpfField.setText("");
                 CpfField.requestFocus();
@@ -358,7 +359,13 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
                 pstmt.setString(1, PessoaCadastraView.contato.getDdd());
                 pstmt.setString(2, PessoaCadastraView.contato.getTelefone());
-                pstmt.setString(3, PessoaCadastraView.contato.getEmail());
+                
+                if (PessoaCadastraView.contato.getEmail().equalsIgnoreCase("")) {
+                    pstmt.setNull(3, Types.INTEGER);
+                } else {
+                    pstmt.setString(3, PessoaCadastraView.contato.getEmail());
+                }
+                
                 java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
                 pstmt.setTimestamp(4, timestamp);
                 pstmt.executeUpdate();
@@ -492,7 +499,6 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 //            }
 //        });
 //    }
-
     public static Endereco getEndereco() {
         return endereco;
     }
