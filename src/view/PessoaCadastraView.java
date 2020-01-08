@@ -265,6 +265,8 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
             if (nomeCompletoField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher o nome!\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else if (nomeCompletoField.getText().length() < 6) {
+                JOptionPane.showMessageDialog(null, "O nome precisa ter no mínimo 6 caracteres!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else if (CpfField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Favor preencher o CPF!\n", "Erro", JOptionPane.ERROR_MESSAGE);
             } else if (dataNascimentoField.getDate() == null) {
