@@ -102,9 +102,14 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
         jButton2.setText("jButton2");
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Cadastro de Pessoa Fisica");
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         cadastrarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         cadastrarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/save.png"))); // NOI18N
@@ -311,6 +316,16 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_CpfFieldFocusLost
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        int output = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja sair?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (output == 0) {
+            PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
+            this.dispose();
+        } else if (output == 1) {
+
+        }
+    }//GEN-LAST:event_formWindowClosing
+
     private void cadastraEndereco() {
         if (PessoaCadastraView.cadastraEndereco == true) {
             try {
@@ -359,13 +374,13 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
                 pstmt.setString(1, PessoaCadastraView.contato.getDdd());
                 pstmt.setString(2, PessoaCadastraView.contato.getTelefone());
-                
+
                 if (PessoaCadastraView.contato.getEmail().equalsIgnoreCase("")) {
                     pstmt.setNull(3, Types.INTEGER);
                 } else {
                     pstmt.setString(3, PessoaCadastraView.contato.getEmail());
                 }
-                
+
                 java.sql.Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
                 pstmt.setTimestamp(4, timestamp);
                 pstmt.executeUpdate();
