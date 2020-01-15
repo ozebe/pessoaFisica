@@ -443,7 +443,7 @@ public class PessoaCadastraView extends javax.swing.JFrame {
             pstmt.executeUpdate();
             pstmt.close();
             connection.close();
-            JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso!\n", "Cadastro realizado", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Pessoa Física cadastrada com sucesso!\n", "Cadastro realizado", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (ClassNotFoundException | SQLException | IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao cadastrar pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);

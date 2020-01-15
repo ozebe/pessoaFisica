@@ -75,6 +75,7 @@ public class PessoasView extends javax.swing.JFrame {
         tablePessoas = new javax.swing.JTable();
         editarBtn = new javax.swing.JButton();
         buscaField = new javax.swing.JTextField();
+        recarregarBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Pessoas Físicas Cadastradas");
@@ -105,6 +106,15 @@ public class PessoasView extends javax.swing.JFrame {
             }
         });
 
+        recarregarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        recarregarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/refresh.png"))); // NOI18N
+        recarregarBtn.setText("Recarregar");
+        recarregarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                recarregarBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -114,7 +124,9 @@ public class PessoasView extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(198, 198, 198)
+                .addGap(45, 45, 45)
+                .addComponent(recarregarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
                 .addComponent(editarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -129,7 +141,9 @@ public class PessoasView extends javax.swing.JFrame {
                 .addGap(42, 42, 42)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27)
-                .addComponent(editarBtn)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(editarBtn)
+                    .addComponent(recarregarBtn))
                 .addContainerGap(30, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
@@ -168,7 +182,10 @@ public class PessoasView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBtnActionPerformed
-
+        int linha = -1;
+        linha = tablePessoas.getSelectedRow();
+        linha = tablePessoas.getRowSorter().convertRowIndexToModel(linha);
+        System.out.println("CEP: " + pessoas.get(linha).getEndereco().getCep());
 //        try {
 //            carregaNiveisAcesso();
 //            int linha = -1;
@@ -214,6 +231,15 @@ public class PessoasView extends javax.swing.JFrame {
         } else if (output == 1) {
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void recarregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recarregarBtnActionPerformed
+        try {
+            criaTable();
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_recarregarBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -462,6 +488,7 @@ public class PessoasView extends javax.swing.JFrame {
     private javax.swing.JTextField buscaField;
     public static javax.swing.JButton editarBtn;
     private javax.swing.JScrollPane jScrollPane1;
+    public static javax.swing.JButton recarregarBtn;
     private javax.swing.JTable tablePessoas;
     // End of variables declaration//GEN-END:variables
 }

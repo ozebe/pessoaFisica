@@ -34,7 +34,9 @@
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="198" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+              <Component id="recarregarBtn" min="-2" pref="125" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
               <Component id="editarBtn" min="-2" pref="125" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -53,7 +55,10 @@
               <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="375" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-              <Component id="editarBtn" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="editarBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="recarregarBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace pref="30" max="32767" attributes="0"/>
           </Group>
           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
@@ -112,6 +117,23 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="buscaField.getDocument().addDocumentListener(new DocumentListener() {&#xa;  public void changedUpdate(DocumentEvent e) {&#xa;    pesquisar();&#xa;  }&#xa;  public void removeUpdate(DocumentEvent e) {&#xa;    pesquisar();&#xa;  }&#xa;  public void insertUpdate(DocumentEvent e) {&#xa;    pesquisar();&#xa;  }&#xa;&#xa;  public void pesquisar() {&#xa;                        String text = buscaField.getText().toUpperCase();&#xa;                        if (text.length() == 0) {&#xa;                            sorter.setRowFilter(null);&#xa;                        } else {&#xa;                            try {&#xa;                                sorter.setRowFilter(&#xa;                                        RowFilter.regexFilter(text));&#xa;                            } catch (PatternSyntaxException pse) {&#xa;                                System.err.println(&quot;Erro&quot;);&#xa;                            }&#xa;                        }&#xa;  }&#xa;});"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JButton" name="recarregarBtn">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="11" style="1"/>
+        </Property>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/view/images/refresh.png"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Recarregar"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="recarregarBtnActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
       </AuxValues>
     </Component>
   </SubComponents>
