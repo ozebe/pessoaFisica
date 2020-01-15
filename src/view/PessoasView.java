@@ -234,6 +234,11 @@ public class PessoasView extends javax.swing.JFrame {
 
     private void recarregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recarregarBtnActionPerformed
         try {
+            while (modelo.getRowCount() > 0) {
+                for (int i = 0; i < modelo.getRowCount(); i++) {
+                    modelo.removePessoa(i);
+                }
+            }
             criaTable();
         } catch (ClassNotFoundException | SQLException | IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);

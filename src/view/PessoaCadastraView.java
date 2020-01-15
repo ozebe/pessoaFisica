@@ -444,7 +444,8 @@ public class PessoaCadastraView extends javax.swing.JFrame {
             pstmt.close();
             connection.close();
             JOptionPane.showMessageDialog(null, "Pessoa Física cadastrada com sucesso!\n", "Cadastro realizado", JOptionPane.INFORMATION_MESSAGE);
-
+            PessoaCadastraView.cadEnderecoBtn.setEnabled(true);
+            this.dispose();
         } catch (ClassNotFoundException | SQLException | IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao cadastrar pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(PessoaCadastraView.class.getName()).log(Level.SEVERE, null, ex);
