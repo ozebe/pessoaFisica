@@ -214,8 +214,6 @@ public class PessoasView extends javax.swing.JFrame {
     }//GEN-LAST:event_buscaFieldKeyReleased
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        int output = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja sair?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (output == 0) {
             PessoasView.editarBtn.setEnabled(true);
             while (modelo.getRowCount() > 0) {
                 for (int i = 0; i < modelo.getRowCount(); i++) {
@@ -228,8 +226,6 @@ public class PessoasView extends javax.swing.JFrame {
                 Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
             }
             this.dispose();
-        } else if (output == 1) {
-        }
     }//GEN-LAST:event_formWindowClosing
 
     private void recarregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recarregarBtnActionPerformed
