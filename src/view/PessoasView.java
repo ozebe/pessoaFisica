@@ -182,10 +182,6 @@ public class PessoasView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBtnActionPerformed
-        int linha = -1;
-        linha = tablePessoas.getSelectedRow();
-        linha = tablePessoas.getRowSorter().convertRowIndexToModel(linha);
-        System.out.println("CEP: " + pessoas.get(linha).getEndereco().getCep());
 //        try {
 //            carregaNiveisAcesso();
 //            int linha = -1;
