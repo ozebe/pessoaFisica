@@ -5,17 +5,61 @@
  */
 package view;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import control.ConnectionFactory;
+import control.Contato;
+import control.Endereco;
+import control.INI;
+import control.NivelAcesso;
+import control.PessoaFisica;
+import control.Usuario;
+import java.awt.event.KeyEvent;
+import java.util.regex.PatternSyntaxException;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableRowSorter;
+import model.PessoasTableModel;
+
 /**
  *
- * @author wesley.santos
+ * @author wesley
  */
 public class PessoasView extends javax.swing.JFrame {
 
+    public static ArrayList<PessoaFisica> pessoas = new ArrayList<>();
+    private static ArrayList<NivelAcesso> niveis = new ArrayList<>();
+    private static PessoasTableModel modelo = new PessoasTableModel();
+    TableRowSorter<PessoasTableModel> sorter = new TableRowSorter<PessoasTableModel>(modelo);
+    private static Connection connection;
+    private static ConnectionFactory fabrica = new ConnectionFactory();
+    //pega o caminho da base no arquivo .ini
+    public static INI db;
+    public static INI user;
+    public static INI password;
+
+    //public static Usuario userLogado;
     /**
-     * Creates new form PessoaEditaView
+     * Creates new form Usuarios
      */
-    public PessoasView() {
+    public PessoasView(String chave, String valor, String usuario, String senha) throws ClassNotFoundException, SQLException, IOException {
+        //verifica se o usuário tem e permissão de acessar a tela, se tiver continua, se não dá um dispose()
+        db = new INI(chave, valor);
+        user = new INI(chave, usuario);
+        password = new INI(chave, senha);
         initComponents();
+        criaTable();
+
     }
 
     /**
@@ -27,58 +71,397 @@ public class PessoasView extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablePessoas = new javax.swing.JTable();
+        editarBtn = new javax.swing.JButton();
+        buscaField = new javax.swing.JTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle("Pessoas Físicas Cadastradas");
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
+
+        tablePessoas.setModel(modelo);
+        tablePessoas.setRowSorter(sorter);
+        tablePessoas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(tablePessoas);
+
+        editarBtn.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        editarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/edit.png"))); // NOI18N
+        editarBtn.setText("Editar");
+        editarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarBtnActionPerformed(evt);
+            }
+        });
+
+        buscaField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                buscaFieldKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(198, 198, 198)
+                .addComponent(editarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(buscaField, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addComponent(editarBtn)
+                .addContainerGap(30, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(buscaField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(476, Short.MAX_VALUE)))
         );
+
+        buscaField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                pesquisar();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                pesquisar();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                pesquisar();
+            }
+
+            public void pesquisar() {
+                String text = buscaField.getText().toUpperCase();
+                if (text.length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    try {
+                        sorter.setRowFilter(
+                            RowFilter.regexFilter(text));
+                    } catch (PatternSyntaxException pse) {
+                        System.err.println("Erro");
+                    }
+                }
+            }
+        });
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void editarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBtnActionPerformed
+
+//        try {
+//            carregaNiveisAcesso();
+//            int linha = -1;
+//            linha = tablePessoas.getSelectedRow();
+//            if (linha == -1) {
+//                JOptionPane.showMessageDialog(null, "Favor selecionar uma pessoa", "Erro", JOptionPane.ERROR_MESSAGE);
+//            } else {
+//                linha = tablePessoas.getRowSorter().convertRowIndexToModel(linha);
+//                editarBtn.setEnabled(false);
+//                final PessoaEditaView editaPessoa = new PessoaEditaView(pessoas.get(linha), niveis);
+//                editaPessoa.setVisible(true);
+//            }
+//        } catch (ClassNotFoundException | SQLException | IOException ex) {
+//            JOptionPane.showMessageDialog(null, "Não foi possível carregar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+//        } catch (IllegalArgumentException ex) {
+//            JOptionPane.showMessageDialog(null, "Não foi possível carregar o perfil da pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+//            editarBtn.setEnabled(true);
+//        }
+
+    }//GEN-LAST:event_editarBtnActionPerformed
+
+    private void buscaFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaFieldKeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            this.buscaField.setText("");
+        }
+    }//GEN-LAST:event_buscaFieldKeyReleased
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        int output = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja sair?", "Sair", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (output == 0) {
+            PessoasView.editarBtn.setEnabled(true);
+            while (modelo.getRowCount() > 0) {
+                for (int i = 0; i < modelo.getRowCount(); i++) {
+                    modelo.removePessoa(i);
+                }
+            }
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.dispose();
+        } else if (output == 1) {
+        }
+    }//GEN-LAST:event_formWindowClosing
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PessoasView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PessoasView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PessoasView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PessoasView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(UsuariosView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(UsuariosView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(UsuariosView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(UsuariosView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//        //</editor-fold>
+//        //</editor-fold>
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new UsuariosView().setVisible(true);
+//                try {
+//                    criaTable();
+//                } catch (ClassNotFoundException ex) {
+//                    JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+//                    Logger.getLogger(UsuariosView.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (SQLException ex) {
+//                    JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+//                    Logger.getLogger(UsuariosView.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (IOException ex) {
+//                    JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+//                    Logger.getLogger(UsuariosView.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
+//    }
+    public static void criaTable() throws ClassNotFoundException, SQLException, IOException {
+        connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PessoasView().setVisible(true);
+        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome");
+        ResultSet resultSet = stmt.executeQuery();
+
+//        while (modelo.getRowCount() > 0) {
+//            for (int i = 0; i < modelo.getRowCount(); i++) {
+//                modelo.removeUsuario(i);
+//            }
+//        }
+        pessoas.removeAll(pessoas);
+
+        while (resultSet.next()) {
+
+            PreparedStatement endereco = connection.prepareStatement("SELECT * FROM endereco e WHERE e.id = ?");
+            endereco.setInt(1, resultSet.getInt("enderecoId"));
+            ResultSet resultEndereco = endereco.executeQuery();
+            while (resultEndereco.next()) {
+                Endereco e = new Endereco();
+                e.setId(resultEndereco.getInt("id"));
+                e.setLogradouro(resultEndereco.getString("logradouro"));
+                e.setNumero(resultEndereco.getInt("numero"));
+                e.setCep(resultEndereco.getString("cep"));
+                e.setComplemento(resultEndereco.getString("complemento"));
+                e.setBairro(resultEndereco.getString("bairro"));
+                e.setLocalidade(resultEndereco.getString("localidade"));
+                e.setUf(resultEndereco.getString("uf"));
+                e.setCriado(formataTimestamp(resultEndereco.getTimestamp("criado")));
+                e.setEditado(formataTimestamp(resultEndereco.getTimestamp("editado")));
+
+                PreparedStatement contato = connection.prepareStatement("SELECT * FROM contato c WHERE c.id = ?");
+                contato.setInt(1, resultSet.getInt("contatoId"));
+                ResultSet resultContato = contato.executeQuery();
+                while (resultContato.next()) {
+                    Contato c = new Contato();
+                    c.setId(resultContato.getInt("id"));
+                    c.setDdd(resultContato.getString("ddd"));
+                    c.setTelefone(resultContato.getString("telefone"));
+                    c.setEmail(resultContato.getString("email"));
+                    c.setCriado(formataTimestamp(resultContato.getTimestamp("criado")));
+                    c.setEditado(formataTimestamp(resultContato.getTimestamp("editado")));
+
+                    PessoaFisica p = new PessoaFisica(resultSet.getString("nome"), resultSet.getString("cpf"),
+                            formataData(resultSet.getDate("dataNascimento")), resultSet.getString("sexo"), e, c);
+
+                    modelo.addPessoa(p);
+                    pessoas.add(p);
+                }
+
             }
-        });
+
+        }
+        resultSet.close();
+        stmt.close();
+        connection.close();
     }
 
+    public static PessoaFisica getPessoa(String cpf) throws ClassNotFoundException, SQLException, IOException {
+        connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+
+        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM pessoaFisica WHERE pessoaFisica.cpf = ?");
+        stmt.setString(1, cpf);
+        ResultSet resultSet = stmt.executeQuery();
+        PessoaFisica pessoa = null;
+        while (resultSet.next()) {
+
+            PreparedStatement endereco = connection.prepareStatement("SELECT * FROM endereco e WHERE e.id = ?");
+            endereco.setInt(1, resultSet.getInt("enderecoId"));
+            ResultSet resultEndereco = endereco.executeQuery();
+            while (resultEndereco.next()) {
+                Endereco e = new Endereco();
+                e.setId(resultEndereco.getInt("id"));
+                e.setLogradouro(resultEndereco.getString("logradouro"));
+                e.setNumero(resultEndereco.getInt("numero"));
+                e.setCep(resultEndereco.getString("cep"));
+                e.setComplemento(resultEndereco.getString("complemento"));
+                e.setBairro(resultEndereco.getString("bairro"));
+                e.setLocalidade(resultEndereco.getString("localidade"));
+                e.setUf(resultEndereco.getString("uf"));
+                e.setCriado(formataTimestamp(resultEndereco.getTimestamp("criado")));
+                e.setEditado(formataTimestamp(resultEndereco.getTimestamp("editado")));
+
+                PreparedStatement contato = connection.prepareStatement("SELECT * FROM contato c WHERE c.id = ?");
+                contato.setInt(1, resultSet.getInt("contatoId"));
+                ResultSet resultContato = contato.executeQuery();
+                while (resultContato.next()) {
+                    Contato c = new Contato();
+                    c.setId(resultContato.getInt("id"));
+                    c.setDdd(resultContato.getString("ddd"));
+                    c.setTelefone(resultContato.getString("telefone"));
+                    c.setEmail(resultContato.getString("email"));
+                    c.setCriado(formataTimestamp(resultContato.getTimestamp("criado")));
+                    c.setEditado(formataTimestamp(resultContato.getTimestamp("editado")));
+
+                    PessoaFisica p = new PessoaFisica(resultSet.getString("nome"), resultSet.getString("cpf"),
+                            resultSet.getString("dataNascimento"), resultSet.getString("sexo"), e, c);
+
+                    modelo.addPessoa(p);
+                    pessoas.add(p);
+                    pessoa = p;
+                }
+
+            }
+
+        }
+        resultSet.close();
+        stmt.close();
+        connection.close();
+
+        System.out.println("index -:>" + pessoas.indexOf(pessoa));
+
+        return pessoa;
+    }
+
+//    public static void atualizaPessoaTable(PessoaFisica pessoa) throws ClassNotFoundException, SQLException, IOException {
+//        connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+//        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM usuarios WHERE usuarios.id = ? ORDER BY usuarios.nome");
+//        stmt.setInt(1, usuario.getId());
+//        ResultSet resultSet = stmt.executeQuery();
+//
+//        int idTable;
+//        idTable = usuarios.indexOf(usuario);
+//        usuarios.remove(usuario);
+//        while (resultSet.next()) {
+//            Usuario u = new Usuario();
+//            u.setAtivo(resultSet.getBoolean("ativo"));
+//            u.setBloqueado(resultSet.getBoolean("bloqueado"));
+//            u.setCriado(formataTimestamp(resultSet.getTimestamp("criado")));
+//            u.setData_nasc(resultSet.getString("data_nasc"));
+//
+//            u.setEditado(formataTimestamp(resultSet.getTimestamp("editado")));
+//            u.setId(resultSet.getInt("id"));
+//            u.setNivel(resultSet.getInt("nivel"));
+//            u.setNome(resultSet.getString("nome"));
+//            u.setSenha(resultSet.getString("senha"));
+//            u.setTentativas(resultSet.getInt("tentativas"));
+//            u.setUsuario(resultSet.getString("usuario"));
+//
+//            modelo.setValueAt(u, idTable);
+//            usuarios.add(idTable, u);
+//        }
+//        resultSet.close();
+//        stmt.close();
+//        connection.close();
+//    }
+    public static void atualizaDadosTable() {
+        while (modelo.getRowCount() > 0) {
+            for (int i = 0; i < modelo.getRowCount(); i++) {
+                modelo.removePessoa(i);
+            }
+        }
+        for (PessoaFisica p : pessoas) {
+            modelo.addPessoa(p);
+        }
+    }
+
+    public static void carregaNiveisAcesso() throws ClassNotFoundException, SQLException, IOException {
+        connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+        PreparedStatement stmt = connection.prepareStatement("select * from nivelAcesso order by nivelAcesso.id");
+        ResultSet resultSet = stmt.executeQuery();
+        niveis.removeAll(niveis);
+        while (resultSet.next()) {
+            NivelAcesso nv = new NivelAcesso();
+            nv.setId(resultSet.getInt("id"));
+            nv.setDescricao(resultSet.getString("descricao"));
+            nv.setSigla(resultSet.getString("sigla"));
+            niveis.add(nv);
+        }
+        resultSet.close();
+        stmt.close();
+        connection.close();
+    }
+
+    private static String formataTimestamp(Timestamp t) {
+        if (t != null) {
+            SimpleDateFormat formatador = new SimpleDateFormat("dd-MM-yyyy");
+            return formatador.format(t);
+        } else {
+            return "";
+        }
+
+    }
+
+    private static String formataData(java.sql.Date d) {
+        if (d != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            return simpleDateFormat.format(d);
+        } else {
+            return "";
+        }
+    }
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField buscaField;
+    public static javax.swing.JButton editarBtn;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tablePessoas;
     // End of variables declaration//GEN-END:variables
 }
