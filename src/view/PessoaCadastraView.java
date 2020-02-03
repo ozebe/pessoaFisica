@@ -15,6 +15,7 @@ import control.PessoaFisica;
 import control.Profissao;
 import control.Usuario;
 import control.ValidaCPF;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -140,6 +141,17 @@ public class PessoaCadastraView extends javax.swing.JFrame {
         CpfField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 CpfFieldFocusLost(evt);
+            }
+        });
+        CpfField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                CpfFieldKeyPressed(evt);
+            }
+        });
+
+        nomeCompletoField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                nomeCompletoFieldKeyPressed(evt);
             }
         });
 
@@ -327,6 +339,18 @@ public class PessoaCadastraView extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void nomeCompletoFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomeCompletoFieldKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                CpfField.requestFocus();
+        }
+    }//GEN-LAST:event_nomeCompletoFieldKeyPressed
+
+    private void CpfFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_CpfFieldKeyPressed
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                dataNascimentoField.requestFocus();
+        }
+    }//GEN-LAST:event_CpfFieldKeyPressed
 
     private void cadastraEndereco() {
         if (PessoaCadastraView.cadastraEndereco == true) {
