@@ -39,6 +39,8 @@ public class PessoasView extends javax.swing.JFrame {
 
     public static ArrayList<PessoaFisica> pessoas = new ArrayList<>();
     private static ArrayList<NivelAcesso> niveis = new ArrayList<>();
+    private Usuario userLogado;
+
     private static PessoasTableModel modelo = new PessoasTableModel();
     TableRowSorter<PessoasTableModel> sorter = new TableRowSorter<PessoasTableModel>(modelo);
     private static Connection connection;
@@ -52,14 +54,15 @@ public class PessoasView extends javax.swing.JFrame {
     /**
      * Creates new form Usuarios
      */
-    public PessoasView(String chave, String valor, String usuario, String senha) throws ClassNotFoundException, SQLException, IOException {
+    public PessoasView(String chave, String valor, String usuario, String senha, Usuario usuarioLogado) throws ClassNotFoundException, SQLException, IOException {
         //verifica se o usuário tem e permissão de acessar a tela, se tiver continua, se não dá um dispose()
+        this.userLogado = usuarioLogado;
         db = new INI(chave, valor);
         user = new INI(chave, usuario);
         password = new INI(chave, senha);
         initComponents();
         criaTable();
-
+        userLogadoLabel.setText(this.userLogado.getUsuario());
     }
 
     /**
@@ -76,6 +79,10 @@ public class PessoasView extends javax.swing.JFrame {
         editarBtn = new javax.swing.JButton();
         buscaField = new javax.swing.JTextField();
         recarregarBtn = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        userLogadoLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Pessoas Físicas Cadastradas");
@@ -115,6 +122,19 @@ public class PessoasView extends javax.swing.JFrame {
             }
         });
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "25", "50", "100", "200", "Todos" }));
+
+        jLabel1.setText("Mostrar:");
+
+        jLabel2.setText("Usuario:");
+
+        userLogadoLabel.setText("jLabel3");
+        userLogadoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                userLogadoLabelMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -128,6 +148,16 @@ public class PessoasView extends javax.swing.JFrame {
                 .addComponent(recarregarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
                 .addComponent(editarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(userLogadoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
@@ -143,13 +173,19 @@ public class PessoasView extends javax.swing.JFrame {
                 .addGap(27, 27, 27)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(editarBtn)
-                    .addComponent(recarregarBtn))
-                .addContainerGap(30, Short.MAX_VALUE))
+                    .addComponent(recarregarBtn)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(userLogadoLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(buscaField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(476, Short.MAX_VALUE)))
+                    .addContainerGap(482, Short.MAX_VALUE)))
         );
 
         buscaField.getDocument().addDocumentListener(new DocumentListener() {
@@ -182,24 +218,26 @@ public class PessoasView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBtnActionPerformed
-//        try {
-//            carregaNiveisAcesso();
-//            int linha = -1;
-//            linha = tablePessoas.getSelectedRow();
-//            if (linha == -1) {
-//                JOptionPane.showMessageDialog(null, "Favor selecionar uma pessoa", "Erro", JOptionPane.ERROR_MESSAGE);
-//            } else {
-//                linha = tablePessoas.getRowSorter().convertRowIndexToModel(linha);
-//                editarBtn.setEnabled(false);
-//                final PessoaEditaView editaPessoa = new PessoaEditaView(pessoas.get(linha), niveis);
-//                editaPessoa.setVisible(true);
-//            }
-//        } catch (ClassNotFoundException | SQLException | IOException ex) {
-//            JOptionPane.showMessageDialog(null, "Não foi possível carregar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
-//        } catch (IllegalArgumentException ex) {
-//            JOptionPane.showMessageDialog(null, "Não foi possível carregar o perfil da pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
-//            editarBtn.setEnabled(true);
-//        }
+        try {
+            carregaNiveisAcesso();
+            int linha = -1;
+            linha = tablePessoas.getSelectedRow();
+            if (linha == -1) {
+                JOptionPane.showMessageDialog(null, "Favor selecionar uma pessoa", "Erro", JOptionPane.ERROR_MESSAGE);
+            } else {
+                linha = tablePessoas.getRowSorter().convertRowIndexToModel(linha);
+                editarBtn.setEnabled(false);
+                //final PessoaEditaView editaPessoa = new PessoaEditaView(pessoas.get(linha), niveis);
+                //editaPessoa.setVisible(true);
+                JOptionPane.showMessageDialog(null, "id pessoaFisica: " + pessoas.get(linha).getId(), "Erro", JOptionPane.ERROR_MESSAGE);
+                editarBtn.setEnabled(true);
+            }
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            JOptionPane.showMessageDialog(null, "Não foi possível carregar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(null, "Não foi possível carregar o perfil da pessoa fisica!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            editarBtn.setEnabled(true);
+        }
 
     }//GEN-LAST:event_editarBtnActionPerformed
 
@@ -210,18 +248,18 @@ public class PessoasView extends javax.swing.JFrame {
     }//GEN-LAST:event_buscaFieldKeyReleased
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-            PessoasView.editarBtn.setEnabled(true);
-            while (modelo.getRowCount() > 0) {
-                for (int i = 0; i < modelo.getRowCount(); i++) {
-                    modelo.removePessoa(i);
-                }
+        PessoasView.editarBtn.setEnabled(true);
+        while (modelo.getRowCount() > 0) {
+            for (int i = 0; i < modelo.getRowCount(); i++) {
+                modelo.removePessoa(i);
             }
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            this.dispose();
+        }
+        try {
+            connection.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.dispose();
     }//GEN-LAST:event_formWindowClosing
 
     private void recarregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recarregarBtnActionPerformed
@@ -237,6 +275,23 @@ public class PessoasView extends javax.swing.JFrame {
             Logger.getLogger(PessoasView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_recarregarBtnActionPerformed
+
+    private void userLogadoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userLogadoLabelMouseClicked
+
+        try {
+            carregaNiveisAcesso();
+            for (int i = 0; i < this.niveis.size(); i++) {
+                if (this.niveis.get(i).getId() == this.userLogado.getNivel()) {
+                    JOptionPane.showMessageDialog(null, "Nível do usuário: \n" + this.niveis.get(i).getDescricao(), "Nível", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+            //this.userLogado.getNivel()
+        } catch (ClassNotFoundException | SQLException | IOException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao iniciar!\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+
+    }//GEN-LAST:event_userLogadoLabelMouseClicked
 
     /**
      * @param args the command line arguments
@@ -289,8 +344,22 @@ public class PessoasView extends javax.swing.JFrame {
 //    }
     public static void criaTable() throws ClassNotFoundException, SQLException, IOException {
         connection = fabrica.getConnection(db.getDir(), user.getDir(), password.getDir());
+        String SQL = "";
+        if (jComboBox1.getSelectedIndex() == 0) {
+            SQL = "SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome LIMIT 25";
+        } else if (jComboBox1.getSelectedIndex() == 1) {
+            SQL = "SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome LIMIT 50";
+        } else if (jComboBox1.getSelectedIndex() == 2) {
+            SQL = "SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome LIMIT 100";
+        } else if (jComboBox1.getSelectedIndex() == 3) {
+            SQL = "SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome LIMIT 200";
+        } else {
+            SQL = "SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome";
+        }
 
-        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome");
+        //PreparedStatement stmt = connection.prepareStatement("SELECT * FROM pessoaFisica ORDER BY pessoaFisica.nome");
+        PreparedStatement stmt = connection.prepareStatement(SQL);
+
         ResultSet resultSet = stmt.executeQuery();
 
 //        while (modelo.getRowCount() > 0) {
@@ -333,6 +402,7 @@ public class PessoasView extends javax.swing.JFrame {
                     PessoaFisica p = new PessoaFisica(resultSet.getString("nome"), resultSet.getString("cpf"),
                             formataData(resultSet.getDate("dataNascimento")), resultSet.getString("sexo"), e, c);
 
+                    p.setId(resultSet.getInt("id"));
                     modelo.addPessoa(p);
                     pessoas.add(p);
                 }
@@ -342,7 +412,7 @@ public class PessoasView extends javax.swing.JFrame {
         }
         resultSet.close();
         stmt.close();
-        connection.close();
+        //connection.close();
     }
 
     public static PessoaFisica getPessoa(String cpf) throws ClassNotFoundException, SQLException, IOException {
@@ -385,6 +455,7 @@ public class PessoasView extends javax.swing.JFrame {
                     PessoaFisica p = new PessoaFisica(resultSet.getString("nome"), resultSet.getString("cpf"),
                             resultSet.getString("dataNascimento"), resultSet.getString("sexo"), e, c);
 
+                    p.setId(resultSet.getInt("id"));
                     modelo.addPessoa(p);
                     pessoas.add(p);
                     pessoa = p;
@@ -395,7 +466,7 @@ public class PessoasView extends javax.swing.JFrame {
         }
         resultSet.close();
         stmt.close();
-        connection.close();
+        //connection.close();
 
         System.out.println("index -:>" + pessoas.indexOf(pessoa));
 
@@ -458,7 +529,7 @@ public class PessoasView extends javax.swing.JFrame {
         }
         resultSet.close();
         stmt.close();
-        connection.close();
+        //connection.close();
     }
 
     private static String formataTimestamp(Timestamp t) {
@@ -484,8 +555,12 @@ public class PessoasView extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField buscaField;
     public static javax.swing.JButton editarBtn;
+    public static javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     public static javax.swing.JButton recarregarBtn;
     private javax.swing.JTable tablePessoas;
+    private javax.swing.JLabel userLogadoLabel;
     // End of variables declaration//GEN-END:variables
 }
