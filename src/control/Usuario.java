@@ -5,7 +5,6 @@ public class Usuario {
     private String nome;
     private String usuario;
     private String senha;
-    private String data_nasc;
     private int nivel;
     private boolean bloqueado;
     private boolean ativo;
@@ -43,14 +42,6 @@ public class Usuario {
 
     public void setSenha(String senha) {
         this.senha = senha;
-    }
-
-    public String getData_nasc() {
-        return data_nasc;
-    }
-
-    public void setData_nasc(String data_nasc) {
-        this.data_nasc = data_nasc;
     }
 
     public int getNivel() {
